@@ -20,6 +20,9 @@
         <div>
             <button type="submit">Login</button>
         </div>
+
+        <div id="error-message" style="color:red;margin-top:10px;">
+        </div>
     </form>
 
 
@@ -28,6 +31,8 @@
 
     <script>
         const loginForm = document.getElementById('login-form');
+        const errorMessageDiv = document.getElementById('error-message');
+
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -37,10 +42,15 @@
 
             try {
                 const res = await axios.post('/user/login', { email, password });
+                errorMessageDiv.innerText = '';
+
                 alert(res.data.message || 'Login successful');
             } catch (err) {
-                alert('Login failed');
-                console.error(err);
+                if (err.response && (err.response.status === 401 || err.response.status === 404)) {
+                    errorMessageDiv.innerText = err.response.data.message || 'Invalid email or password';
+                } else {
+                    errorMessageDiv.innerText = 'Something went wrong. Please try again.';
+                }
             }
         });
     </script>

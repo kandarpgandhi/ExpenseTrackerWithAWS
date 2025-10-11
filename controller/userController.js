@@ -29,11 +29,11 @@ const loginUser = async (req, res) => {
         const user = await User.findOne({ where: { email } });
 
         if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).send('Invalid email or password');
         }
 
         if (password != user.password) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            return res.status(401).send('Invalid email or password');
         }
 
         res.status(200).json({ message: 'Login successful' });
