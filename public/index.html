@@ -24,7 +24,10 @@
             </div>
 
             <div>
-                <button type="submit">Submit</button>
+                <button type="submit">Sign Up</button>
+            </div>
+            <div>
+                <a href="login.html">Login</a>
             </div>
         </form>
 
@@ -48,6 +51,7 @@
                     });
 
                     form.reset();
+                    window.location.href = '/login.html';
                 } catch (err) {
                     console.log(err);
                 }
