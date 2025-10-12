@@ -1,5 +1,6 @@
 const User = require('../models/user')
 const sequelize = require('../utils/db-connection')
+const bcrypt = require('bcrypt')
 
 const addUser = async (req, res) => {
     try {
@@ -10,10 +11,13 @@ const addUser = async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists with this email' })
         }
-        const user = await User.create({
-            userName: userName,
-            email: email,
-            password: password,
+        bcrypt.hash(password, 10, async (err, hash) => {
+
+            await User.create({
+                userName: userName,
+                email: email,
+                password: hash,
+            })
         })
         res.status(201).send('User added')
     } catch (err) {
@@ -32,11 +36,22 @@ const loginUser = async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        if (password != user.password) {
-            return res.status(401).send('User not authorized');
-        }
+        // if (password != user.password) {
+        //     return res.status(401).send('User not authorized');
+        // }
 
-        res.status(200).json({ message: 'Login successful' });
+        bcrypt.compare(password, user.password, (err, result) => {
+            if (err) {
+                res.status(500).json({ message: 'Error in password' });
+            }
+            if (result) {
+                res.status(200).json({ message: 'Login successful' });
+
+            }
+            else {
+                res.status(400).json({ message: 'Password is incorrect' });
+            }
+        })
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Internal server error' });
