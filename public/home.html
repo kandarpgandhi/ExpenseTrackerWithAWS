@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Page</title>
+</head>
+
+<body>
+    <form id="expense-form">
+        <div>
+            <label for="expenseAmt">Expense Amount:</label>
+            <input type="number" name="expenseAmt" id="expenseAmt" />
+        </div>
+        <div>
+            <label for="description">Description:</label>
+            <input type="text" name="description" id="description" />
+        </div>
+        <div>
+            <label for="category">Category:</label>
+            <select name="category" id="category">
+                <option value="food">Food</option>
+                <option value="fuel">Fuel</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit">Add Expense</button>
+        </div>
+    </form>
+
+    <div>
+        <ul id="expense-list"></ul>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+
+    <script>
+        const form = document.getElementById('expense-form')
+        const expenseList = document.getElementById('expense-list')
+
+        async function getExpense() {
+            try {
+                const res = await axios.get('/expense')
+                const expenses = res.data
+
+                expenseList.innerHTML = ''
+                expenses.forEach(expenseItem => {
+                    const li = document.createElement('li')
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                    li.innerHTML = `
+            <div>
+              <strong>₹${expenseItem.amount}</strong> - ${expenseItem.description} (${expenseItem.category})
+            </div>
+            <div>
+              <button class="btn btn-sm btn-danger me-2" onclick="deleteExpense(${expenseItem.id})">Delete</button>
+            </div>
+          `;
+
+                    expenseList.appendChild(li);
+                });
+            } catch (err) {
+                console.error('Error fetching Expenses:', err);
+            }
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault()
+
+            const amount = document.getElementById('expenseAmt').value;
+            const description = document.getElementById('description').value;
+            const category = document.getElementById('category').value;
+
+            try {
+                await axios.post('/expense/addexpense', {
+                    amount,
+                    description,
+                    category
+                });
+
+                form.reset();
+                getExpense();
+            } catch (err) {
+                console.error('Error saving expense:', err);
+            }
+        })
+
+
+        async function deleteExpense(id) {
+            try {
+                await axios.delete(`/expense/${id}`);
+                getExpense();
+            } catch (err) {
+                console.error('Error deleting expense:', err);
+            }
+        }
+
+        getExpense();
+    </script>
+</body>
+
+</html>

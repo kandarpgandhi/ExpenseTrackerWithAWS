@@ -45,6 +45,7 @@
                 errorMessageDiv.innerText = '';
 
                 alert(res.data.message || 'Login successful');
+                window.location.href = '/home.html';
             } catch (err) {
                 if (err.response && (err.response.status === 401 || err.response.status === 404)) {
                     errorMessageDiv.innerText = err.response.data.message || 'Invalid email or password';
