@@ -1,6 +1,7 @@
 const User = require('../models/user')
 const sequelize = require('../utils/db-connection')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken');
 
 const addUser = async (req, res) => {
     try {
@@ -25,6 +26,9 @@ const addUser = async (req, res) => {
     }
 }
 
+function generateAccessToken(id, name) {
+    return jwt.sign({ userId: id, name: name }, 'SECRETKEY')
+}
 
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
@@ -45,7 +49,11 @@ const loginUser = async (req, res) => {
                 res.status(500).json({ message: 'Error in password' });
             }
             if (result) {
-                res.status(200).json({ message: 'Login successful' });
+                const token = generateAccessToken(user.id, user.userName);
+                res.status(200).json({
+                    message: 'Login successful',
+                    token: token
+                });
 
             }
             else {

@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('../utils/db-connection')
-
+const User = require('./user');
 const Expense = sequelize.define('ExpenseTable', {
     id: {
         type: DataTypes.INTEGER,
@@ -18,7 +18,14 @@ const Expense = sequelize.define('ExpenseTable', {
     category: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
     }
 })
+
+User.hasMany(Expense);
+Expense.belongsTo(User);
 
 module.exports = Expense

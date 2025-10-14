@@ -42,7 +42,8 @@
 
         async function getExpense() {
             try {
-                const res = await axios.get('/expense')
+                const token = localStorage.getItem('token')
+                const res = await axios.get('/expense', { headers: { "Authorization": token } })
                 const expenses = res.data
 
                 expenseList.innerHTML = ''
@@ -78,6 +79,8 @@
                     amount,
                     description,
                     category
+                }, {
+                    headers: { Authorization: localStorage.getItem('token') }
                 });
 
                 form.reset();
@@ -90,7 +93,9 @@
 
         async function deleteExpense(id) {
             try {
-                await axios.delete(`/expense/${id}`);
+                await axios.delete(`/expense/${id}`, {
+                    headers: { Authorization: localStorage.getItem('token') }
+                });
                 getExpense();
             } catch (err) {
                 console.error('Error deleting expense:', err);
