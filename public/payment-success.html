@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Success</title>
+</head>
+
+<body style="text-align:center;">
+    <h2>Verifying Payment...</h2>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        (async () => {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('order_id');
+            const token = localStorage.getItem('token');
+
+            try {
+                const response = await axios.post('/premium/status', {
+                    orderId,
+                    status: 'PAID'
+                }, {
+                    headers: { Authorization: token }
+                });
+
+                document.body.innerHTML = `
+          <h1>Payment Successful 🎉</h1>
+          <p>You are now a premium user!</p>
+          <p>Redirecting to home...</p>
+        `;
+
+                setTimeout(() => {
+                    window.location.href = '/home.html';
+                }, 2000);
+
+            } catch (err) {
+                console.error('Payment verification failed:', err);
+                alert('Payment verification failed. Please contact support.');
+                window.location.href = '/payment-failed.html';
+            }
+        })();
+    </script>
+</body>
+
+</html>

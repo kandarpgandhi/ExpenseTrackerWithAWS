@@ -40,9 +40,6 @@ const loginUser = async (req, res) => {
             return res.status(404).send('User not found');
         }
 
-        // if (password != user.password) {
-        //     return res.status(401).send('User not authorized');
-        // }
 
         bcrypt.compare(password, user.password, (err, result) => {
             if (err) {

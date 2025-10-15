@@ -25,7 +25,11 @@ const Expense = sequelize.define('ExpenseTable', {
     }
 })
 
-User.hasMany(Expense);
-Expense.belongsTo(User);
+// User.hasMany(Expense);
+// Expense.belongsTo(User);
+
+User.hasMany(Expense, { foreignKey: 'userId' });
+Expense.belongsTo(User, { foreignKey: 'userId' });
+
 
 module.exports = Expense

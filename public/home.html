@@ -4,25 +4,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Page</title>
+    <title>Expense Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #buy-premium-btn {
+            background-color: #0b5ed7;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        #buy-premium-btn:hover {
+            background-color: #084298;
+        }
+
+        #show-leaderboard-btn {
+            background-color: #198754;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
+        #leaderboard-section {
+            margin-top: 25px;
+            display: none;
+        }
+
+        #leaderboard-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        #leaderboard-section li {
+            background-color: #f1f1f1;
+            margin-bottom: 5px;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        #expense-form {
+            margin-bottom: 20px;
+        }
+
+        #expense-form div {
+            margin: 10px 0;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
+    <header>
+        <h2>Expense Tracker</h2>
+        <div>
+            <button id="buy-premium-btn">Buy Premium</button>
+            <button id="show-leaderboard-btn">Show Leaderboard</button>
+        </div>
+    </header>
+
     <form id="expense-form">
         <div>
             <label for="expenseAmt">Expense Amount:</label>
-            <input type="number" name="expenseAmt" id="expenseAmt" />
+            <input type="number" name="expenseAmt" id="expenseAmt" required />
         </div>
         <div>
             <label for="description">Description:</label>
-            <input type="text" name="description" id="description" />
+            <input type="text" name="description" id="description" required />
         </div>
         <div>
             <label for="category">Category:</label>
             <select name="category" id="category">
                 <option value="food">Food</option>
                 <option value="fuel">Fuel</option>
-                <option value="Other">Other</option>
+                <option value="other">Other</option>
             </select>
         </div>
         <div>
@@ -33,76 +106,133 @@
     <div>
         <ul id="expense-list"></ul>
     </div>
+
+    <div id="leaderboard-section">
+        <h3>Leaderboard (Total Expense Descending)</h3>
+        <ul id="leaderboard-list"></ul>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
     <script>
-        const form = document.getElementById('expense-form')
-        const expenseList = document.getElementById('expense-list')
-
-        async function getExpense() {
-            try {
-                const token = localStorage.getItem('token')
-                const res = await axios.get('/expense', { headers: { "Authorization": token } })
-                const expenses = res.data
-
-                expenseList.innerHTML = ''
-                expenses.forEach(expenseItem => {
-                    const li = document.createElement('li')
-                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
-
-                    li.innerHTML = `
-            <div>
-              <strong>₹${expenseItem.amount}</strong> - ${expenseItem.description} (${expenseItem.category})
-            </div>
-            <div>
-              <button class="btn btn-sm btn-danger me-2" onclick="deleteExpense(${expenseItem.id})">Delete</button>
-            </div>
-          `;
-
-                    expenseList.appendChild(li);
-                });
-            } catch (err) {
-                console.error('Error fetching Expenses:', err);
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (!localStorage.getItem("token")) {
+                window.location.href = "/login.html";
+                return;
             }
-        }
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault()
+            const token = localStorage.getItem("token");
+            const form = document.getElementById("expense-form");
+            const expenseList = document.getElementById("expense-list");
+            const buyBtn = document.getElementById("buy-premium-btn");
+            const leaderboardBtn = document.getElementById("show-leaderboard-btn");
+            const leaderboardSection = document.getElementById("leaderboard-section");
+            const leaderboardList = document.getElementById("leaderboard-list");
 
-            const amount = document.getElementById('expenseAmt').value;
-            const description = document.getElementById('description').value;
-            const category = document.getElementById('category').value;
+            const cashfree = Cashfree({ mode: "sandbox" });
 
-            try {
-                await axios.post('/expense/addexpense', {
-                    amount,
-                    description,
-                    category
-                }, {
-                    headers: { Authorization: localStorage.getItem('token') }
-                });
-
-                form.reset();
-                getExpense();
-            } catch (err) {
-                console.error('Error saving expense:', err);
+            async function getExpenses() {
+                try {
+                    const res = await axios.get("/expense", { headers: { Authorization: token } });
+                    expenseList.innerHTML = "";
+                    res.data.forEach(expense => {
+                        const li = document.createElement("li");
+                        li.innerHTML = `
+              <strong>₹${expense.amount}</strong> - ${expense.description} (${expense.category})
+              <button onclick="deleteExpense(${expense.id})">Delete</button>
+            `;
+                        expenseList.appendChild(li);
+                    });
+                } catch (err) {
+                    console.error("Error fetching expenses:", err);
+                }
             }
-        })
 
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const amount = document.getElementById("expenseAmt").value;
+                const description = document.getElementById("description").value;
+                const category = document.getElementById("category").value;
 
-        async function deleteExpense(id) {
-            try {
-                await axios.delete(`/expense/${id}`, {
-                    headers: { Authorization: localStorage.getItem('token') }
-                });
-                getExpense();
-            } catch (err) {
-                console.error('Error deleting expense:', err);
+                try {
+                    await axios.post("/expense/addexpense", { amount, description, category },
+                        { headers: { Authorization: token } });
+                    form.reset();
+                    getExpenses();
+                } catch (err) {
+                    console.error("Error adding expense:", err);
+                }
+            });
+
+            window.deleteExpense = async (id) => {
+                try {
+                    await axios.delete(`/expense/${id}`, { headers: { Authorization: token } });
+                    getExpenses();
+                } catch (err) {
+                    console.error("Error deleting expense:", err);
+                }
+            };
+
+            async function checkPremiumStatus() {
+                try {
+                    const res = await axios.get("/premium/check-status", { headers: { Authorization: token } });
+                    const isPremium = res.data.isPremium;
+
+                    if (isPremium) {
+                        buyBtn.style.display = "none";
+                        leaderboardBtn.style.display = "inline-block";
+                    } else {
+                        buyBtn.style.display = "inline-block";
+                        leaderboardBtn.style.display = "none";
+                    }
+                } catch (err) {
+                    console.error("Error checking premium status:", err);
+                }
             }
-        }
 
-        getExpense();
+            buyBtn.addEventListener("click", async () => {
+                try {
+                    const res = await axios.post("/premium/buy", {}, { headers: { Authorization: token } });
+                    const orderData = res.data.order;
+
+                    if (!orderData || !orderData.payment_session_id) {
+                        throw new Error("Invalid order data from backend");
+                    }
+
+                    await cashfree.checkout({
+                        paymentSessionId: orderData.payment_session_id,
+                        redirectTarget: "_self",
+                    });
+
+                } catch (err) {
+                    console.error("Error during payment:", err);
+                    alert("Payment failed or SDK not loaded correctly.");
+                }
+            });
+
+            leaderboardBtn.addEventListener("click", async () => {
+                try {
+                    const res = await axios.get("/premium/leaderboard", { headers: { Authorization: token } });
+                    leaderboardList.innerHTML = "";
+                    leaderboardSection.style.display = "block";
+
+                    res.data.forEach(entry => {
+                        const li = document.createElement("li");
+                        console.log(entry);
+                        li.textContent = `${entry.userforexpenseapp.userName} - ₹${entry.totalExpense}`;
+                        leaderboardList.appendChild(li);
+                    });
+                } catch (err) {
+                    console.error("Error fetching leaderboard:", err);
+                    alert("You must be a premium user to view leaderboard!");
+                }
+            });
+
+            await getExpenses();
+            await checkPremiumStatus();
+        });
     </script>
 </body>
 

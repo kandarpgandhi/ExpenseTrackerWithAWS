@@ -34,6 +34,11 @@
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <script>
+            // localStorage.removeItem('token');
+            if (localStorage.getItem('token')) {
+                window.location.href = '/home.html';
+            }
+
             const form = document.getElementById('user-form');
 
             form.addEventListener('submit', async (e) => {

@@ -8,6 +8,7 @@ const authenticate = (req, res, next) => {
         console.log(token)
         const user = jwt.verify(token, 'SECRETKEY')
         User.findByPk(user.userId).then(user => {
+            if (!user) return res.status(404).json({ message: "User not found" });
             console.log(JSON.stringify(user))
             req.user = user
             next()
