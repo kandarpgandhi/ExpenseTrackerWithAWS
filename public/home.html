@@ -221,7 +221,7 @@
                     res.data.forEach(entry => {
                         const li = document.createElement("li");
                         console.log(entry);
-                        li.textContent = `${entry.userforexpenseapp.userName} - ₹${entry.totalExpense}`;
+                        li.textContent = `${entry.userName} - ₹${entry.totalExpense}`;
                         leaderboardList.appendChild(li);
                     });
                 } catch (err) {
