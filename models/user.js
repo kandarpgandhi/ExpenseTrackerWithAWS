@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize')
+const { DataTypes, INTEGER } = require('sequelize')
 const sequelize = require('../utils/db-connection')
 
 const User = sequelize.define('userforexpenseapp', {
@@ -24,7 +24,13 @@ const User = sequelize.define('userforexpenseapp', {
     isPremium: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    ///////////////added new///////////////////
+    totalExpenseOfUser: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
     }
+    ////////////////////////////////////////
 })
 
 module.exports = User
