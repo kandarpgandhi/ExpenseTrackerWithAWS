@@ -68,36 +68,11 @@ exports.getLeaderBoard = async (req, res) => {
             return res.status(403).json({ message: "Access denied. Not a premium user." });
         }
 
-        // const leaderboardofusers = await User.findAll({
-        //     attributes: [
-        //         'id', 'userName',
-        //         [sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('amount')), 0), 'totalExpense']
-        //     ],
-        //     include: [
-        //         {
-        //             model: Expense,
-        //             attributes: [],
-        //             required: false
-        //         }
-        //     ],
-        //     group: ['userforexpenseapp.id'],
-        //     order: [[sequelize.literal('totalExpense'), 'DESC']]
-        // });
-
         const leaderboardofusers = await User.findAll({
             attributes: [
                 'id', 'userName', 'totalExpenseOfUser'
             ],
             order: [['totalExpenseOfUser', 'DESC']]
-            // include: [
-            //     {
-            //         model: Expense,
-            //         attributes: [],
-            //         required: false
-            //     }
-            // ],
-            // group: ['userforexpenseapp.id'],
-            // order: [[sequelize.literal('totalExpenseOfUser'), 'DESC']]
         });
 
 

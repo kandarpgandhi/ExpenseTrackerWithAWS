@@ -25,12 +25,10 @@ const User = sequelize.define('userforexpenseapp', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    ///////////////added new///////////////////
     totalExpenseOfUser: {
         type: DataTypes.INTEGER,
         defaultValue: 0
     }
-    ////////////////////////////////////////
 })
 
 module.exports = User

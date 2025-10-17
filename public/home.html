@@ -234,6 +234,82 @@
             await checkPremiumStatus();
         });
     </script>
+
+
+    <!-- //////////////////////////////////////////////////// -->
+    <!-- <script>
+        require("dotenv").config()
+        let genai = require('@google/genai')
+
+        let ai = new genai.GoogleGenAI({
+            apiKey: process.env.GEMINI_API_KEY
+        })
+
+        async function main() {
+            const response = await ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: "Explain how AI works in a few words",
+            });
+            console.log(response.text);
+        }
+
+        let description=document.getElementById('description')
+
+        description.addEventListener('keyup',()=>{
+            
+        })
+    </script> -->
+
+    <script>
+        const descriptionInput = document.getElementById('description');
+        const categorySelect = document.getElementById('category');
+
+        let timeout = null;
+
+        descriptionInput.addEventListener('keyup', async () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(async () => {
+                const description = descriptionInput.value.trim();
+                // Only query AI if the input is long enough
+                if (description.length < 3) return;
+
+                try {
+                    const res = await axios.post('/ai/suggest-category', { description });
+                    // Suggested category from AI (e.g., "Groceries")
+                    const suggested = res.data.category.trim();
+                    const suggestedValue = suggested.toLowerCase();
+
+                    console.log("Suggested category:", suggested);
+
+                    // Check if the category already exists in the dropdown (by its value)
+                    let exists = false;
+                    for (let i = 0; i < categorySelect.options.length; i++) {
+                        if (categorySelect.options[i].value === suggestedValue) {
+                            exists = true;
+                            break;
+                        }
+                    }
+
+                    if (!exists) {
+                        const newOption = document.createElement('option');
+                        newOption.value = suggestedValue;
+                        newOption.textContent = suggested; // Use the capitalized version for display
+                        categorySelect.appendChild(newOption);
+                    }
+
+                    // Set the dropdown value to the suggested category
+                    categorySelect.value = suggestedValue;
+
+                } catch (err) {
+                    console.error('AI suggestion error:', err);
+                    // Optional: Revert to default/first option on error
+                    // categorySelect.value = categorySelect.options[0].value;
+                }
+            }, 700); // delay to avoid API spam while typing
+        });
+    </script>
+
+    <!-- /////////////////////////////////////////////////// -->
 </body>
 
 </html>
