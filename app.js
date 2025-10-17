@@ -7,7 +7,7 @@ const User = require('./models/user');
 const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const premiumRoutes = require('./routes/premiumRoutes');
-
+const forgetPasswordRoutes = require('./routes/forgetPasswordRoutes')
 //////////////////////////////////////////
 const aiRoutes = require('./routes/aiRoutes');
 //////////////////////////////////////////
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 app.use('/expense', expenseRoutes);
 app.use('/user', userRoutes);
 app.use('/premium', premiumRoutes);
-
+app.use('/password', forgetPasswordRoutes)
 sequelize.sync().then(() => {
     app.listen(3000, () => {
         console.log('🚀 Server running at http://localhost:3000');
