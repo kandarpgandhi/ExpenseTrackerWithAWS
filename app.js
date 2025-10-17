@@ -8,16 +8,14 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const premiumRoutes = require('./routes/premiumRoutes');
 const forgetPasswordRoutes = require('./routes/forgetPasswordRoutes')
-//////////////////////////////////////////
+
 const aiRoutes = require('./routes/aiRoutes');
-//////////////////////////////////////////
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-///////////////////////////
+
 app.use('/ai', aiRoutes);
-////////////////////////////
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -29,6 +27,7 @@ app.use('/expense', expenseRoutes);
 app.use('/user', userRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', forgetPasswordRoutes)
+
 sequelize.sync().then(() => {
     app.listen(3000, () => {
         console.log('🚀 Server running at http://localhost:3000');
