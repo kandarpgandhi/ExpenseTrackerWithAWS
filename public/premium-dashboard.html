@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Day To Day Expenses - Premium</title>
+
+    <!-- Bootstrap 5 CSS (CDN) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #f7fafc;
+        }
+
+        .card-slim {
+            border-radius: .5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+        }
+
+        .left-pane {
+            padding: 1.25rem;
+            background: white;
+            border-radius: .5rem;
+            height: 100%;
+        }
+
+        .left-item {
+            margin-bottom: 1rem;
+        }
+
+        .table-compact td,
+        .table-compact th {
+            padding: .5rem .75rem;
+        }
+
+        .currency {
+            font-weight: 700;
+        }
+
+        .section-title {
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: .6rem;
+        }
+
+        .notes {
+            color: #374151;
+        }
+
+        .badge-prem {
+            background: #059669;
+            color: white;
+        }
+
+        .small-muted {
+            color: #6b7280;
+            font-size: .9rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-4">
+        <div class="d-flex align-items-start mb-4">
+            <h1 class="me-auto h3">Day To Day Expenses</h1>
+            <!-- Premium badge top-right -->
+            <span class="badge badge-prem px-3 py-2">Premium</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- LEFT column -->
+            <div class="col-lg-3">
+                <div class="left-pane card-slim">
+                    <div class="left-item">
+                        <div class="small-muted">Date</div>
+                        <div class="fw-semibold">18 March 2021, 01:18 PM</div>
+                    </div>
+
+                    <hr />
+
+                    <div class="left-item">
+                        <div class="small-muted">Year</div>
+                        <div class="fw-semibold">2021</div>
+                    </div>
+
+                    <div class="left-item">
+                        <div class="small-muted">Month</div>
+                        <div class="fw-semibold">March 2021</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- RIGHT column -->
+            <div class="col-lg-9">
+
+                <!-- Summary row and download button -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="w-100">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card card-slim p-3">
+                                    <div class="small-muted">Income</div>
+                                    <div class="currency display-6" id="summary-income">₹ 60,000.00</div>
+                                    <div class="small-muted">This period</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-slim p-3">
+                                    <div class="small-muted">Expense</div>
+                                    <div class="currency display-6 text-danger" id="summary-expense">₹ 5,670.00</div>
+                                    <div class="small-muted">This period</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card card-slim p-3">
+                                    <div class="small-muted">Balance</div>
+                                    <div class="currency display-6" id="summary-balance">₹ 54,330.00</div>
+                                    <div class="small-muted">Income − Expense</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Download CSV -->
+                    <div class="ms-3">
+                        <!-- Hardcoded premium -> enabled -->
+                        <button id="downloadCsvBtn" class="btn btn-primary">
+                            ⤓ Download CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabs for Daily/Weekly/Monthly (visual only) -->
+                <ul class="nav nav-tabs mb-3" role="tablist">
+                    <li class="nav-item"><a class="nav-link active" href="#">Daily</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Weekly</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Monthly</a></li>
+                </ul>
+
+                <!-- Transactions card (main table) -->
+                <div class="card card-slim p-3 mb-4">
+                    <h5 class="mb-3 section-title">Transactions (March 2021)</h5>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-compact align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:125px">Date</th>
+                                    <th>Description</th>
+                                    <th style="width:140px">Category</th>
+                                    <th style="width:130px" class="text-end">Income</th>
+                                    <th style="width:130px" class="text-end">Expense</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+
+                                <!-- Hardcoded sample rows grouped by date - March 1 -->
+                                <tr>
+                                    <td>01-03-2021</td>
+                                    <td>Milk</td>
+                                    <td>Milk</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 60.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+
+                                <!-- March 4 -->
+                                <tr class="table-info">
+                                    <td>04-03-2021</td>
+                                    <td>Salary</td>
+                                    <td>Salary</td>
+                                    <td class="text-end">₹ 40,000.00 <span class="badge bg-success ms-2">Income</span>
+                                    </td>
+                                    <td class="text-end">-</td>
+                                </tr>
+                                <tr>
+                                    <td>04-03-2021</td>
+                                    <td>Fruits</td>
+                                    <td>Fruits</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 500.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+                                <tr>
+                                    <td>04-03-2021</td>
+                                    <td>Medicines</td>
+                                    <td>Health</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 50.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+
+                                <!-- Subtotal for 04-03-2021 -->
+                                <tr class="table-light">
+                                    <td></td>
+                                    <td class="text-end"><strong>Subtotal (04-03-2021)</strong></td>
+                                    <td></td>
+                                    <td class="text-end"><strong>₹ 40,000.00</strong></td>
+                                    <td class="text-end"><strong>₹ 550.00</strong></td>
+                                </tr>
+
+                                <!-- March 05 -->
+                                <tr class="table-info">
+                                    <td>05-03-2021</td>
+                                    <td>Salary</td>
+                                    <td>Salary</td>
+                                    <td class="text-end">₹ 20,000.00 <span class="badge bg-success ms-2">Income</span>
+                                    </td>
+                                    <td class="text-end">-</td>
+                                </tr>
+                                <tr>
+                                    <td>05-03-2021</td>
+                                    <td>Milk</td>
+                                    <td>Milk</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 60.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+                                <tr>
+                                    <td>05-03-2021</td>
+                                    <td>Fees</td>
+                                    <td>Education</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 4,000.00 <span class="badge bg-danger ms-2">Expense</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>05-03-2021</td>
+                                    <td>Party</td>
+                                    <td>Birthday Treat</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 500.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+                                <tr>
+                                    <td>05-03-2021</td>
+                                    <td>Travel - ecard</td>
+                                    <td>Auto And Transport</td>
+                                    <td class="text-end">-</td>
+                                    <td class="text-end">₹ 500.00 <span class="badge bg-danger ms-2">Expense</span></td>
+                                </tr>
+
+                                <!-- Subtotal for 05-03-2021 -->
+                                <tr class="table-light">
+                                    <td></td>
+                                    <td class="text-end"><strong>Subtotal (05-03-2021)</strong></td>
+                                    <td></td>
+                                    <td class="text-end"><strong>₹ 20,000.00</strong></td>
+                                    <td class="text-end"><strong>₹ 5,060.00</strong></td>
+                                </tr>
+
+                                <!-- Final totals rows -->
+                                <tr class="table-secondary">
+                                    <td></td>
+                                    <td class="text-end"><strong>Total Income</strong></td>
+                                    <td></td>
+                                    <td class="text-end"><strong>₹ 60,000.00</strong></td>
+                                    <td class="text-end"><strong>₹ 5,670.00</strong></td>
+                                </tr>
+
+                                <tr class="table-success">
+                                    <td></td>
+                                    <td class="text-end"><strong>Savings</strong></td>
+                                    <td></td>
+                                    <td colspan="2" class="text-end"><strong>₹ 54,330.00</strong></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Yearly Report -->
+                <div class="card card-slim p-3 mb-4">
+                    <h5 class="mb-3 section-title">Yearly Report</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-compact align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Month</th>
+                                    <th class="text-end">Income</th>
+                                    <th class="text-end">Expense</th>
+                                    <th class="text-end">Savings</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>March</td>
+                                    <td class="text-end">₹ 60,000.00</td>
+                                    <td class="text-end">₹ 5,670.00</td>
+                                    <td class="text-end">₹ 54,330.00</td>
+                                </tr>
+                                <tr class="table-secondary">
+                                    <td class="text-end"><strong>Year Total</strong></td>
+                                    <td class="text-end"><strong>₹ 60,000.00</strong></td>
+                                    <td class="text-end"><strong>₹ 5,670.00</strong></td>
+                                    <td class="text-end"><strong>₹ 54,330.00</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Notes Report -->
+                <div class="card card-slim p-3 mb-4">
+                    <h5 class="mb-3 section-title">Notes Report 2021</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-compact">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width:150px">Date</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>11-02-2021</td>
+                                    <td>Gave advance to construction.</td>
+                                </tr>
+                                <tr>
+                                    <td>16-02-2021</td>
+                                    <td>Fghj nhj hj</td>
+                                </tr>
+                                <tr>
+                                    <td>17-02-2021</td>
+                                    <td>17 17 17</td>
+                                </tr>
+                                <tr>
+                                    <td>18-02-2021</td>
+                                    <td>18</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Small notes using bullets -->
+                <div class="mb-5 notes">
+                    <strong>Notes:</strong>
+                    <ul>
+                        <li>Green badges = Income, Red badges = Expense</li>
+                        <li>Download button enabled for premium users (hardcoded)</li>
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap & dependencies (bundle includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Small helper to format numbers with commas and two decimals, prefix ₹
+        function formatRupee(value) {
+            if (value === null || value === undefined || isNaN(Number(value))) return '₹ 0.00';
+            const num = Number(value);
+            return '₹ ' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Fill summary (hardcoded values must match table)
+        document.getElementById('summary-income').textContent = formatRupee(60000);
+        document.getElementById('summary-expense').textContent = formatRupee(5670);
+        document.getElementById('summary-balance').textContent = formatRupee(54330);
+
+        // CSV download (collects the three tables into a CSV string)
+        document.getElementById('downloadCsvBtn').addEventListener('click', function () {
+            // For demonstration we build CSV from hardcoded items (matching the page)
+            const transactions = [
+                ['Date', 'Description', 'Category', 'Income', 'Expense'],
+                ['01-03-2021', 'Milk', 'Milk', '', '60.00'],
+                ['04-03-2021', 'Salary', 'Salary', '40000.00', ''],
+                ['04-03-2021', 'Fruits', 'Fruits', '', '500.00'],
+                ['04-03-2021', 'Medicines', 'Health', '', '50.00'],
+                ['05-03-2021', 'Salary', 'Salary', '20000.00', ''],
+                ['05-03-2021', 'Milk', 'Milk', '', '60.00'],
+                ['05-03-2021', 'Fees', 'Education', '', '4000.00'],
+                ['05-03-2021', 'Party', 'Birthday Treat', '', '500.00'],
+                ['05-03-2021', 'Travel - ecard', 'Auto And Transport', '', '500.00'],
+                [],
+                ['Total Income', '60000.00'],
+                ['Total Expense', '5670.00'],
+                ['Savings', '54330.00']
+            ];
+
+            const yearly = [
+                [],
+                ['Yearly Report'],
+                ['Month', 'Income', 'Expense', 'Savings'],
+                ['March', '60000.00', '5670.00', '54330.00']
+            ];
+
+            const notes = [
+                [],
+                ['Notes Report 2021'],
+                ['Date', 'Notes'],
+                ['11-02-2021', 'Gave advance to construction.'],
+                ['16-02-2021', 'Fghj nhj hj'],
+                ['17-02-2021', '17 17 17'],
+                ['18-02-2021', '18']
+            ];
+
+            // Merge all into one CSV text
+            const merged = [...transactions, ...yearly, ...notes];
+            const csvContent = merged.map(r => r.map(cell => {
+                // escape quotes
+                if (cell === undefined || cell === null) return '';
+                const s = String(cell);
+                if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+                    return '"' + s.replace(/"/g, '""') + '"';
+                }
+                return s;
+            }).join(',')).join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'expenses_report_march_2021.csv';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        });
+    </script>
+</body>
+
+</html>
