@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Expense Tracker</title>
     <style>
         body {
@@ -69,6 +69,36 @@
         button {
             cursor: pointer;
         }
+
+        /* Pagination styles */
+        #pagination {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #pagination button {
+            padding: 6px 10px;
+            border: none;
+            background-color: #0b5ed7;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #pagination button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #itemsPerPageContainer {
+            margin-bottom: 15px;
+        }
+
+        #itemsPerPageSelect {
+            padding: 4px 6px;
+        }
     </style>
 </head>
 
@@ -103,8 +133,28 @@
         </div>
     </form>
 
+    <!-- User preference for items per page -->
+    <div id="itemsPerPageContainer">
+        <label for="itemsPerPageSelect">Expenses per page: </label>
+        <select id="itemsPerPageSelect">
+            <option value="5">5</option>
+            <option value="8">8</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+        </select>
+    </div>
+
     <div>
         <ul id="expense-list"></ul>
+    </div>
+
+    <!-- Pagination controls -->
+    <div id="pagination">
+        <button id="prevPage">Previous</button>
+        <span id="pageInfo"></span>
+        <button id="nextPage">Next</button>
     </div>
 
     <div id="leaderboard-section">
@@ -112,8 +162,8 @@
         <ul id="leaderboard-list"></ul>
     </div>
 
+    <!-- libs -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
     <script>
@@ -130,21 +180,51 @@
             const leaderboardBtn = document.getElementById("show-leaderboard-btn");
             const leaderboardSection = document.getElementById("leaderboard-section");
             const leaderboardList = document.getElementById("leaderboard-list");
-
             const cashfree = Cashfree({ mode: "sandbox" });
+
+            // Pagination state
+            let allExpenses = [];
+            let currentPage = 1;
+
+            // ✅ Load user preference for items per page
+            let itemsPerPage = parseInt(localStorage.getItem("itemsPerPage")) || 10;
+            const itemsPerPageSelect = document.getElementById("itemsPerPageSelect");
+            itemsPerPageSelect.value = itemsPerPage;
+
+            itemsPerPageSelect.addEventListener("change", () => {
+                itemsPerPage = parseInt(itemsPerPageSelect.value);
+                localStorage.setItem("itemsPerPage", itemsPerPage);
+                currentPage = 1;
+                renderExpenses();
+            });
+
+            function renderExpenses() {
+                expenseList.innerHTML = "";
+                const start = (currentPage - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                const paginated = allExpenses.slice(start, end);
+
+                paginated.forEach(expense => {
+                    const li = document.createElement("li");
+                    li.innerHTML = `
+            <strong>₹${expense.amount}</strong> - ${expense.description} (${expense.category})
+            <button onclick="deleteExpense(${expense.id})">Delete</button>
+          `;
+                    expenseList.appendChild(li);
+                });
+
+                const totalPages = Math.max(1, Math.ceil(allExpenses.length / itemsPerPage));
+                document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+                document.getElementById("prevPage").disabled = currentPage === 1;
+                document.getElementById("nextPage").disabled = currentPage === totalPages || totalPages === 0;
+            }
 
             async function getExpenses() {
                 try {
                     const res = await axios.get("/expense", { headers: { Authorization: token } });
-                    expenseList.innerHTML = "";
-                    res.data.forEach(expense => {
-                        const li = document.createElement("li");
-                        li.innerHTML = `
-              <strong>₹${expense.amount}</strong> - ${expense.description} (${expense.category})
-              <button onclick="deleteExpense(${expense.id})">Delete</button>
-            `;
-                        expenseList.appendChild(li);
-                    });
+                    allExpenses = Array.isArray(res.data) ? res.data : [];
+                    currentPage = 1;
+                    renderExpenses();
                 } catch (err) {
                     console.error("Error fetching expenses:", err);
                 }
@@ -160,7 +240,7 @@
                     await axios.post("/expense/addexpense", { amount, description, category },
                         { headers: { Authorization: token } });
                     form.reset();
-                    getExpenses();
+                    await getExpenses();
                 } catch (err) {
                     console.error("Error adding expense:", err);
                 }
@@ -169,17 +249,31 @@
             window.deleteExpense = async (id) => {
                 try {
                     await axios.delete(`/expense/${id}`, { headers: { Authorization: token } });
-                    getExpenses();
+                    await getExpenses();
                 } catch (err) {
                     console.error("Error deleting expense:", err);
                 }
             };
 
+            document.getElementById("prevPage").addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderExpenses();
+                }
+            });
+
+            document.getElementById("nextPage").addEventListener("click", () => {
+                const totalPages = Math.max(1, Math.ceil(allExpenses.length / itemsPerPage));
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderExpenses();
+                }
+            });
+
             async function checkPremiumStatus() {
                 try {
                     const res = await axios.get("/premium/check-status", { headers: { Authorization: token } });
                     const isPremium = res.data.isPremium;
-
                     if (isPremium) {
                         buyBtn.style.display = "none";
                         leaderboardBtn.style.display = "inline-block";
@@ -217,10 +311,8 @@
                     const res = await axios.get("/premium/leaderboard", { headers: { Authorization: token } });
                     leaderboardList.innerHTML = "";
                     leaderboardSection.style.display = "block";
-
                     res.data.forEach(entry => {
                         const li = document.createElement("li");
-                        console.log(entry);
                         li.textContent = `${entry.userName} - ₹${entry.totalExpenseOfUser}`;
                         leaderboardList.appendChild(li);
                     });
@@ -230,86 +322,50 @@
                 }
             });
 
+            // AI Category Suggestion
+            const descriptionInput = document.getElementById('description');
+            const categorySelect = document.getElementById('category');
+            let timeout = null;
+
+            descriptionInput.addEventListener('keyup', async () => {
+                clearTimeout(timeout);
+                timeout = setTimeout(async () => {
+                    const description = descriptionInput.value.trim();
+                    if (description.length < 3) return;
+
+                    try {
+                        const res = await axios.post('/ai/suggest-category', { description });
+                        const suggested = (res.data && res.data.category) ? res.data.category.trim() : '';
+                        if (!suggested) return;
+
+                        const suggestedValue = suggested.toLowerCase();
+                        let exists = false;
+                        for (let i = 0; i < categorySelect.options.length; i++) {
+                            if (categorySelect.options[i].value === suggestedValue) {
+                                exists = true;
+                                break;
+                            }
+                        }
+
+                        if (!exists) {
+                            const newOption = document.createElement('option');
+                            newOption.value = suggestedValue;
+                            newOption.textContent = suggested;
+                            categorySelect.appendChild(newOption);
+                        }
+
+                        categorySelect.value = suggestedValue;
+                    } catch (err) {
+                        console.error('AI suggestion error:', err);
+                    }
+                }, 700);
+            });
+
+            // initial load
             await getExpenses();
             await checkPremiumStatus();
         });
     </script>
-
-
-    <!-- //////////////////////////////////////////////////// -->
-    <!-- <script>
-        require("dotenv").config()
-        let genai = require('@google/genai')
-
-        let ai = new genai.GoogleGenAI({
-            apiKey: process.env.GEMINI_API_KEY
-        })
-
-        async function main() {
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash",
-                contents: "Explain how AI works in a few words",
-            });
-            console.log(response.text);
-        }
-
-        let description=document.getElementById('description')
-
-        description.addEventListener('keyup',()=>{
-            
-        })
-    </script> -->
-
-    <script>
-        const descriptionInput = document.getElementById('description');
-        const categorySelect = document.getElementById('category');
-
-        let timeout = null;
-
-        descriptionInput.addEventListener('keyup', async () => {
-            clearTimeout(timeout);
-            timeout = setTimeout(async () => {
-                const description = descriptionInput.value.trim();
-                // Only query AI if the input is long enough
-                if (description.length < 3) return;
-
-                try {
-                    const res = await axios.post('/ai/suggest-category', { description });
-                    // Suggested category from AI (e.g., "Groceries")
-                    const suggested = res.data.category.trim();
-                    const suggestedValue = suggested.toLowerCase();
-
-                    console.log("Suggested category:", suggested);
-
-                    // Check if the category already exists in the dropdown (by its value)
-                    let exists = false;
-                    for (let i = 0; i < categorySelect.options.length; i++) {
-                        if (categorySelect.options[i].value === suggestedValue) {
-                            exists = true;
-                            break;
-                        }
-                    }
-
-                    if (!exists) {
-                        const newOption = document.createElement('option');
-                        newOption.value = suggestedValue;
-                        newOption.textContent = suggested; // Use the capitalized version for display
-                        categorySelect.appendChild(newOption);
-                    }
-
-                    // Set the dropdown value to the suggested category
-                    categorySelect.value = suggestedValue;
-
-                } catch (err) {
-                    console.error('AI suggestion error:', err);
-                    // Optional: Revert to default/first option on error
-                    // categorySelect.value = categorySelect.options[0].value;
-                }
-            }, 700); // delay to avoid API spam while typing
-        });
-    </script>
-
-    <!-- /////////////////////////////////////////////////// -->
 </body>
 
 </html>
