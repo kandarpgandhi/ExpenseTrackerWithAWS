@@ -28,7 +28,7 @@ app.use('/user', userRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', forgetPasswordRoutes)
 
-sequelize.sync().then(() => {
+sequelize.authenticate().then(() => {
     app.listen(3000, () => {
         console.log('🚀 Server running at http://localhost:3000');
     });
