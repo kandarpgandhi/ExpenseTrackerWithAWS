@@ -29,7 +29,7 @@ app.use('/premium', premiumRoutes);
 app.use('/password', forgetPasswordRoutes)
 
 sequelize.authenticate().then(() => {
-    app.listen(3000, () => {
+    app.listen(process.env.PORT, () => {
         console.log('🚀 Server running at http://localhost:3000');
     });
 }).catch(err => console.error('Database sync error:', err));

@@ -5,7 +5,7 @@ const sequelize = require('../utils/db-connection');
 const addExpense = async (req, res) => {
     const t = await sequelize.transaction(); // define before try
     try {
-        const { amount, description, category } = req.body;
+        const { amount, description, category, note } = req.body;
         console.log("req.user:", req.user);
 
         // 1️⃣ Create expense
@@ -13,7 +13,8 @@ const addExpense = async (req, res) => {
             amount,
             description,
             category,
-            userId: req.user.id
+            userId: req.user.id,
+            note
         }, { transaction: t });
 
         // 2️⃣ Update user's total

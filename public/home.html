@@ -128,6 +128,13 @@
                 <option value="other">Other</option>
             </select>
         </div>
+        <!-- ///////////////////////////////// -->
+        <div>
+            <label for="note">Note:</label>
+            <input type="text" name="note" id="note" placeholder="Optional note" />
+        </div>
+        <!-- ///////////////////////////////// -->
+
         <div>
             <button type="submit">Add Expense</button>
         </div>
@@ -235,9 +242,11 @@
                 const amount = document.getElementById("expenseAmt").value;
                 const description = document.getElementById("description").value;
                 const category = document.getElementById("category").value;
-
+                //////////////////////////////////
+                const note = document.getElementById("note").value;
+                ////////////////////////////////
                 try {
-                    await axios.post("/expense/addexpense", { amount, description, category },
+                    await axios.post("/expense/addexpense", { amount, description, category, note },
                         { headers: { Authorization: token } });
                     form.reset();
                     await getExpenses();

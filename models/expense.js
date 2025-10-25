@@ -26,7 +26,12 @@ const Expense = sequelize.define('ExpenseTable', {
         type: DataTypes.STRING,
         allowNull: true,
     }
-})
+},
+    {
+        tableName: 'ExpenseTable',  // 👈 THIS IS IMPORTANT
+        timestamps: true
+
+    })
 
 User.hasMany(Expense, { foreignKey: 'userId' });
 Expense.belongsTo(User, { foreignKey: 'userId' });
