@@ -22,13 +22,13 @@ const Expense = sequelize.define('ExpenseTable', {
     userId: {
         type: DataTypes.INTEGER,
         allowNull: false
-    }, note: {                              // 👈 NEW FIELD
+    }, note: {
         type: DataTypes.STRING,
         allowNull: true,
     }
 },
     {
-        tableName: 'ExpenseTable',  // 👈 THIS IS IMPORTANT
+        tableName: 'ExpenseTable',
         timestamps: true
 
     })

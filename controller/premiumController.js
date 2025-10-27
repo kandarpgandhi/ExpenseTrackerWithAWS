@@ -49,10 +49,7 @@ exports.updatePaymentStatus = async (req, res) => {
             req.user.isPremium = true;
             await req.user.save();
 
-            // const newToken = jwt.sign(
-            //     { userId: req.user.id, userName: req.user.userName, isPremium: req.user.isPremium },
-            //     process.env.JWT_SECRET
-            // );
+
 
             return res.status(200).json({ success: true, message: "Payment successful! User upgraded to premium." });
         }

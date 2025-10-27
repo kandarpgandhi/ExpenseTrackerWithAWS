@@ -16,7 +16,6 @@ const ForgotPasswordRequest = sequelize.define('ForgotPasswordRequest', {
     }
 });
 
-// relationships
 User.hasMany(ForgotPasswordRequest, { foreignKey: 'userId' });
 ForgotPasswordRequest.belongsTo(User, { foreignKey: 'userId' });
 

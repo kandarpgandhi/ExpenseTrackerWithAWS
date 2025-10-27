@@ -41,6 +41,16 @@
             display: none;
         }
 
+        #show-download-btn {
+            background-color: #198754;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
         #leaderboard-section {
             margin-top: 25px;
             display: none;
@@ -70,7 +80,6 @@
             cursor: pointer;
         }
 
-        /* Pagination styles */
         #pagination {
             margin-top: 15px;
             display: flex;
@@ -108,6 +117,10 @@
         <div>
             <button id="buy-premium-btn">Buy Premium</button>
             <button id="show-leaderboard-btn">Show Leaderboard</button>
+
+            <!-- ///////////////////////////// -->
+            <button id="show-download-btn">Download</button>
+            <!-- /////////////////////////////// -->
         </div>
     </header>
 
@@ -128,19 +141,19 @@
                 <option value="other">Other</option>
             </select>
         </div>
-        <!-- ///////////////////////////////// -->
+
         <div>
             <label for="note">Note:</label>
             <input type="text" name="note" id="note" placeholder="Optional note" />
         </div>
-        <!-- ///////////////////////////////// -->
+
 
         <div>
             <button type="submit">Add Expense</button>
         </div>
     </form>
 
-    <!-- User preference for items per page -->
+
     <div id="itemsPerPageContainer">
         <label for="itemsPerPageSelect">Expenses per page: </label>
         <select id="itemsPerPageSelect">
@@ -157,7 +170,7 @@
         <ul id="expense-list"></ul>
     </div>
 
-    <!-- Pagination controls -->
+
     <div id="pagination">
         <button id="prevPage">Previous</button>
         <span id="pageInfo"></span>
@@ -169,7 +182,14 @@
         <ul id="leaderboard-list"></ul>
     </div>
 
-    <!-- libs -->
+    <!-- //////////////////////// -->
+    <div id="download-history" style="margin-top:20px; display:none;">
+        <h3>Your Previous Downloads</h3>
+        <ul id="download-list"></ul>
+    </div>
+
+    <!-- ////////////////////////// -->
+
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
@@ -185,15 +205,20 @@
             const expenseList = document.getElementById("expense-list");
             const buyBtn = document.getElementById("buy-premium-btn");
             const leaderboardBtn = document.getElementById("show-leaderboard-btn");
+
+            ////////////////////////////////////////////////
+            const downloadBtn = document.getElementById('show-download-btn')
+            ///////////////////////////////////////////////
+
             const leaderboardSection = document.getElementById("leaderboard-section");
             const leaderboardList = document.getElementById("leaderboard-list");
             const cashfree = Cashfree({ mode: "sandbox" });
 
-            // Pagination state
+
             let allExpenses = [];
             let currentPage = 1;
 
-            // ✅ Load user preference for items per page
+
             let itemsPerPage = parseInt(localStorage.getItem("itemsPerPage")) || 10;
             const itemsPerPageSelect = document.getElementById("itemsPerPageSelect");
             itemsPerPageSelect.value = itemsPerPage;
@@ -242,9 +267,9 @@
                 const amount = document.getElementById("expenseAmt").value;
                 const description = document.getElementById("description").value;
                 const category = document.getElementById("category").value;
-                //////////////////////////////////
+
                 const note = document.getElementById("note").value;
-                ////////////////////////////////
+
                 try {
                     await axios.post("/expense/addexpense", { amount, description, category, note },
                         { headers: { Authorization: token } });
@@ -286,9 +311,18 @@
                     if (isPremium) {
                         buyBtn.style.display = "none";
                         leaderboardBtn.style.display = "inline-block";
+
+                        /////////////////////////////////////////
+                        downloadBtn.style.display = "inline-block"
+                        /////////////////////////////////////////
+
                     } else {
                         buyBtn.style.display = "inline-block";
                         leaderboardBtn.style.display = "none";
+
+                        /////////////////////////////////
+                        downloadBtn.style.display = "none"
+                        /////////////////////////////////
                     }
                 } catch (err) {
                     console.error("Error checking premium status:", err);
@@ -331,7 +365,59 @@
                 }
             });
 
-            // AI Category Suggestion
+            /////////////////////////////////////////////////
+            downloadBtn.addEventListener("click", async () => {
+                try {
+
+                    // alert("✅ Download button clicked!");
+                    await axios.get("/expense/download", { headers: { Authorization: token } }).then((response) => {
+                        if (response.status === 200) {
+                            var a = document.createElement('a')
+                            a.href = response.data.fileURL
+                            a.download = 'myexpense.csv'
+                            a.click()
+                        } else {
+                            throw new Error(response.data.message)
+                        }
+                    }).catch((err) => {
+                        console.log(err)
+                    })
+
+                }
+                catch (err) {
+                    console.error("Error downloading file:", err);
+                    alert(err.response?.data?.message || "Failed to download expenses.");
+                }
+            })
+
+
+
+            async function loadDownloadHistory() {
+                try {
+                    const res = await axios.get("/expense/download-history", { headers: { Authorization: token } });
+                    const list = document.getElementById("download-list");
+                    const section = document.getElementById("download-history");
+                    section.style.display = "block";
+                    list.innerHTML = "";
+
+                    if (res.data.length === 0) {
+                        list.innerHTML = "<li>No previous downloads found.</li>";
+                        return;
+                    }
+
+                    res.data.forEach(entry => {
+                        const li = document.createElement("li");
+                        const date = new Date(entry.createdAt).toLocaleString();
+                        li.innerHTML = `<a href="${entry.fileURL}" target="_blank">Download from ${date}</a>`;
+                        list.appendChild(li);
+                    });
+                } catch (err) {
+                    console.error("Error fetching history:", err);
+                }
+            }
+
+            //////////////////////////////////////////////////
+
             const descriptionInput = document.getElementById('description');
             const categorySelect = document.getElementById('category');
             let timeout = null;
@@ -370,9 +456,10 @@
                 }, 700);
             });
 
-            // initial load
+
             await getExpenses();
             await checkPremiumStatus();
+            await loadDownloadHistory();
         });
     </script>
 </body>
