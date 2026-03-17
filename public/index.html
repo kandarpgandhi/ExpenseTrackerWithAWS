@@ -6,61 +6,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense App</title>
 </head>
+<link rel="stylesheet" href="style.css" />
 
 <body>
-    <div>
-        <form id="user-form">
-            <div>
-                <label for="userName">User Name:</label>
-                <input type="text" id="userName" name="userName" />
-            </div>
-            <div>
-                <label for="email">email:</label>
-                <input type="text" id="email" name="email" />
-            </div>
-            <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" />
-            </div>
+    <div class="container">
+        <div class="card">
+            <h2>Sign Up</h2>
 
-            <div>
+            <form id="user-form">
+                <div class="form-group">
+                    <label for="userName">User Name:</label>
+                    <input type="text" id="userName" name="userName" required minlength="3" />
+                    <small class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required />
+                    <small class="error"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required minlength="6" />
+                    <small class="error"></small>
+                </div>
+
                 <button type="submit">Sign Up</button>
-            </div>
-            <div>
-                <a href="login.html">Login</a>
-            </div>
-        </form>
 
-        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                <div class="link">
+                    <a href="login.html">Already have an account? Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-        <script>
-            if (localStorage.getItem('token')) {
-                window.location.href = '/home.html';
+    <script>
+        if (localStorage.getItem('token')) {
+            window.location.href = '/home.html';
+        }
+
+        const form = document.getElementById('user-form');
+
+        const setError = (inputId, message) => {
+            const input = document.getElementById(inputId);
+            const error = input.nextElementSibling;
+            error.textContent = message;
+        };
+
+        const clearErrors = () => {
+            document.querySelectorAll('.error').forEach(e => e.textContent = '');
+        };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors();
+
+            const userName = document.getElementById('userName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            let isValid = true;
+
+            if (userName.length < 3) {
+                setError('userName', 'Username must be at least 3 characters');
+                isValid = false;
             }
 
-            const form = document.getElementById('user-form');
+            if (!email.includes('@') || !email.includes('.')) {
+                setError('email', 'Enter a valid email');
+                isValid = false;
+            }
 
-            form.addEventListener('submit', async (e) => {
-                e.preventDefault();
+            if (password.length < 6) {
+                setError('password', 'Password must be at least 6 characters');
+                isValid = false;
+            }
 
-                const userName = document.getElementById('userName').value;
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
+            if (!isValid) return;
 
-                try {
-                    await axios.post(`/user`, {
-                        userName,
-                        email,
-                        password
-                    });
-
-                    form.reset();
-                    window.location.href = '/login.html';
-                } catch (err) {
-                    console.log(err);
-                }
-            });
-        </script>
+            try {
+                await axios.post(`/user`, { userName, email, password });
+                form.reset();
+                window.location.href = '/login.html';
+            } catch (err) {
+                console.log(err);
+            }
+        });
+    </script>
 </body>
 
 </html>

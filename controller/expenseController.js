@@ -39,7 +39,7 @@ function uploadToS3(data, filename) {
         Bucket: BUCKET_NAME,
         Key: filename,
         Body: data,
-        ACL: 'public-read'
+        ContentType: 'application/msword'
     }
     return new Promise((resolve, reject) => {
         s3bucket.upload(params, (err, s3response) => {
@@ -64,7 +64,7 @@ const downloadExpense = async (req, res) => {
         console.log(expenses)
         const stringifiedExpenses = JSON.stringify(expenses)
         const userId = req.user.id
-        const filename = `Expense${userId}/${new Date()}.txt`
+        const filename = `Expense${userId}/${new Date()}.docx`
 
         const fileURL = await uploadToS3(stringifiedExpenses, filename)
         await Download.create({

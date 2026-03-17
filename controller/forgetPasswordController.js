@@ -12,6 +12,7 @@ const tranEmailApi = new Sib.TransactionalEmailsApi();
 
 exports.sendEmail = async (req, res) => {
     try {
+        console.log("API KEY:", process.env.SIB_API_KEY);
         const { email } = req.body;
 
         if (!email) return res.status(400).json({ message: 'Email is required' });

@@ -37,11 +37,11 @@
 
 
 
-// // app.get('/test', (req, res) => res.send('✅ Server routes are working'));
+// // app.get('/test', (req, res) => res.send(' Server routes are working'));
 
 // sequelize.authenticate().then(() => {
 //     app.listen(process.env.PORT, () => {
-//         console.log('🚀 Server running at http://localhost:3000');
+//         console.log(' Server running at http://localhost:3000');
 //     });
 // }).catch(err => console.error('Database sync error:', err));
 
@@ -64,33 +64,27 @@ const morgan = require('morgan');
 
 const app = express();
 
-// Logging
 const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use(morgan('combined', { stream: accessLogStream }));
 
 app.use(cors());
 app.use(express.json());
 
-// ✅ This serves your /public folder (home.html, login.html, etc.)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ✅ All backend APIs
 app.use('/ai', aiRoutes);
 app.use('/expense', expenseRoutes);
 app.use('/user', userRoutes);
 app.use('/premium', premiumRoutes);
 app.use('/password', forgetPasswordRoutes);
 
-// Default root page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ✅ Test route
-app.get('/test', (req, res) => res.send('✅ Server routes are working'));
+// app.get('/test', (req, res) => res.send('Server routes are working'));
 
-// Start server
 const PORT = process.env.PORT || 3000;
 sequelize.authenticate({ alter: true }).then(() => {
-    app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+    app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 }).catch(err => console.error('Database sync error:', err));

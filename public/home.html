@@ -6,109 +6,264 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Expense Tracker</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
+        /* ===== RESET ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        /* ===== HEADER ===== */
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            background: white;
+            padding: 18px 25px;
+            border-radius: 14px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
         }
 
-        #buy-premium-btn {
-            background-color: #0b5ed7;
-            color: white;
+        header h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* ===== BUTTONS ===== */
+        button {
+            padding: 10px 16px;
             border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        /* Primary */
+        #buy-premium-btn {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
         }
 
         #buy-premium-btn:hover {
-            background-color: #084298;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
         }
 
-        #show-leaderboard-btn {
-            background-color: #198754;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: none;
-        }
-
+        /* Success */
+        #show-leaderboard-btn,
         #show-download-btn {
-            background-color: #198754;
-            color: white;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            display: none;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
         }
 
-        #leaderboard-section {
-            margin-top: 25px;
-            display: none;
+        #show-leaderboard-btn:hover,
+        #show-download-btn:hover {
+            transform: translateY(-1px);
         }
 
-        #leaderboard-section ul {
-            list-style: none;
-            padding: 0;
+        /* Danger */
+        #logout-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
         }
 
-        #leaderboard-section li {
-            background-color: #f1f1f1;
-            margin-bottom: 5px;
-            padding: 8px;
-            border-radius: 5px;
+        #logout-btn:hover {
+            transform: translateY(-1px);
         }
 
+        /* ===== FORM ===== */
         #expense-form {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
             margin-bottom: 20px;
         }
 
         #expense-form div {
-            margin: 10px 0;
-        }
-
-        button {
-            cursor: pointer;
-        }
-
-        #pagination {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #pagination button {
-            padding: 6px 10px;
-            border: none;
-            background-color: #0b5ed7;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        #pagination button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        #itemsPerPageContainer {
             margin-bottom: 15px;
         }
 
-        #itemsPerPageSelect {
-            padding: 4px 6px;
+        label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            outline: none;
+        }
+
+        /* Submit button */
+        #expense-form button {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            margin-top: 10px;
+        }
+
+        #expense-form button:hover {
+            transform: translateY(-1px);
+        }
+
+        /* ===== EXPENSE LIST ===== */
+        #expense-list {
+            list-style: none;
+        }
+
+        #expense-list li {
+            background: white;
+            padding: 15px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+            transition: 0.2s;
+        }
+
+        #expense-list li:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Delete button */
+        #expense-list button {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        /* ===== PAGINATION ===== */
+        #pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #pagination button {
+            background: #6366f1;
+        }
+
+        #pagination button:disabled {
+            background: #cbd5f5;
+            cursor: not-allowed;
+        }
+
+        /* ===== ITEMS PER PAGE ===== */
+        #itemsPerPageContainer {
+            margin: 15px 0;
+        }
+
+        /* ===== LEADERBOARD ===== */
+        #leaderboard-section {
+            margin-top: 25px;
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        #leaderboard-section h3 {
+            margin-bottom: 10px;
+        }
+
+        #leaderboard-section li {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        /* ===== DOWNLOAD HISTORY ===== */
+        #download-history {
+            margin-top: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 14px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        #download-history li {
+            margin-bottom: 6px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #expense-list li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        /* Header right section */
+        header div {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            /* space between buttons */
+        }
+
+        /* Make header buttons compact */
+        header button {
+            padding: 6px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+            width: auto;
+            /* IMPORTANT */
+            min-width: 110px;
+        }
+
+        #expense-list button {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 6px;
+            width: auto;
+            /* IMPORTANT */
+            min-width: unset;
+        }
+
+        #expense-form button {
+            width: 100%;
+            padding: 10px;
+        }
+
+        button {
+            display: inline-block;
+            width: auto;
+            /* prevents full width issue */
         }
     </style>
+
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -117,10 +272,10 @@
         <div>
             <button id="buy-premium-btn">Buy Premium</button>
             <button id="show-leaderboard-btn">Show Leaderboard</button>
-
-            <!-- ///////////////////////////// -->
             <button id="show-download-btn">Download</button>
-            <!-- /////////////////////////////// -->
+
+            <!-- NEW -->
+            <button id="logout-btn">Logout</button>
         </div>
     </header>
 
@@ -194,6 +349,12 @@
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
     <script>
+        const logoutBtn = document.getElementById("logout-btn");
+
+        logoutBtn.addEventListener("click", () => {
+            localStorage.removeItem("token");
+            window.location.href = "/login.html";
+        });
         document.addEventListener("DOMContentLoaded", async () => {
             if (!localStorage.getItem("token")) {
                 window.location.href = "/login.html";
@@ -369,7 +530,7 @@
             downloadBtn.addEventListener("click", async () => {
                 try {
 
-                    // alert("✅ Download button clicked!");
+                    // alert(" Download button clicked!");
                     await axios.get("/expense/download", { headers: { Authorization: token } }).then((response) => {
                         if (response.status === 200) {
                             var a = document.createElement('a')
